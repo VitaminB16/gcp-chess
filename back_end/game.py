@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from .config import STARTING_PIECES
+from .config import STARTING_PIECES, PIECES_SYMBOLS
 
 
 class Piece:
@@ -17,15 +17,16 @@ class Piece:
         self.is_moved = False  # Useful for specific rules like castling or en passant.
 
     def __repr__(self):
-        return f"{self.color[0].upper()}_{self.piece_type.upper()}"
+        return f"{PIECES_SYMBOLS[self.color + '_' + self.piece_type]}"
 
 
 class ChessGame:
-    def __init__(self):
+    def __init__(self, **kwargs):
         """
         Initialize a chess game.
         """
-        self.board = [[None for _ in range(8)] for _ in range(8)]
+        self.player_color = kwargs.get("player_color", "white")
+        self.board = np.empty((8, 8), dtype=object)
         self.initialize_board()
 
     def initialize_board(self):
@@ -33,18 +34,21 @@ class ChessGame:
         colors = ["black", "white"]
         for idx, color in enumerate(colors):
             # Set the pawns
-            row = 1 if color == "black" else 6
+            row = 1 if color == "white" else 6
             for col in range(8):
-                self.board[row][col] = Piece(color, "pawn")
+                self.board[row, col] = Piece(color, "pawn")
 
-            row = 0 if color == "black" else 7
+            row = 0 if color == "white" else 7
             for col, piece_type in enumerate(STARTING_PIECES):
-                self.board[row][col] = Piece(color, piece_type)
+                self.board[row, col] = Piece(color, piece_type)
 
     def display_board(self):
-        """Display the board."""
+        """Display the board in the terminal."""
         board_df = pd.DataFrame(
             self.board, columns=list("ABCDEFGH"), index=list(range(1, 9))
         )
         board_df = board_df.replace(np.nan, "")
-        print(board_df)
+        if self.player_color == "white":
+            print(board_df.loc[::-1])
+        else:
+            print(board_df)
