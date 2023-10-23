@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "gcp-chess"
+version = "0.1.0"
+description = ""
+authors = ["VitaminB16"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.13"
+numpy = "^1.26.1"
+scipy = "^1.11.3"
+pygame = "^2.5.2"
+numexpr = "^2.8.7"
+pandas = "^2.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
