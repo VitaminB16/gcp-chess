@@ -1,24 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from .board import Board
-from .config import STARTING_PIECES, PIECES_SYMBOLS
-
-
-class Piece:
-    def __init__(self, color, piece_type):
-        """
-        Initialize a piece with its color and type.
-
-        :param color: 'white' or 'black'
-        :param piece_type: 'pawn', 'rook', 'knight', 'bishop', 'queen', or 'king'
-        """
-        self.color = color
-        self.piece_type = piece_type
-        self.is_moved = False  # Useful for specific rules like castling or en passant.
-
-    def __repr__(self):
-        return f"{PIECES_SYMBOLS[self.color + '_' + self.piece_type]}"
+from back_end.board import Board, Piece
+from config import STARTING_PIECES, PIECES_SYMBOLS
 
 
 class ChessGame:

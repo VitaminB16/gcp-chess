@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from .config import STARTING_PIECES, PIECES_SYMBOLS
+from config import STARTING_PIECES, PIECES_SYMBOLS
 
 
 class Piece:
@@ -33,13 +33,12 @@ class Board:
         board_df = pd.DataFrame(
             self.board, columns=list("ABCDEFGH"), index=list(range(1, 9))
         )
-        board_df = board_df.replace(np.nan, "")
+        board_df = board_df.replace(np.nan, ".")
         if self.player_color == "white":
             board_df = board_df.loc[::-1]
         footer = board_df.columns.to_list()
-        board_df = pd.concat(
-            [board_df, pd.DataFrame([footer], columns=board_df.columns, index=[""])]
-        )
+        footer = pd.DataFrame([footer], columns=board_df.columns, index=[""])
+        board_df = pd.concat([board_df, footer])
         return board_df.to_string(header=False)
 
     def initialize_board(self):
