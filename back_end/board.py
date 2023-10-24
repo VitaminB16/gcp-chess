@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
 
-from common.config import STARTING_PIECES, PIECES_SYMBOLS
+from common.config import STARTING_PIECES, PIECE_SYMBOLS
 
 
 class Piece:
-    def __init__(self, color, piece_type):
+    def __init__(self, color, piece_type, position=None):
         """
         Initialize a piece with its color and type.
 
@@ -15,9 +15,10 @@ class Piece:
         self.color = color
         self.piece_type = piece_type
         self.is_moved = False  # Useful for specific rules like castling or en passant.
+        self.position = position
 
     def __repr__(self):
-        return f"{PIECES_SYMBOLS[self.color + '_' + self.piece_type]}"
+        return f"{PIECE_SYMBOLS[self.color + '_' + self.piece_type]}"
 
 
 class Board:
@@ -27,6 +28,7 @@ class Board:
         """
         self.player_color = kwargs.get("player_color", "white")
         self.board = np.empty((8, 8), dtype=object)
+        self.piece_positions = {}
         self.initialize_board()
 
     def __repr__(self):
@@ -48,8 +50,17 @@ class Board:
             # Set the pawns
             row = 1 if color == "white" else 6
             for col in range(8):
-                self.board[row, col] = Piece(color, "pawn")
+                position = row * 8 + col
+                self.board[row, col] = Piece(color, "pawn", position)
+                self.piece_positions[position] = self.board[row, col]
 
             row = 0 if color == "white" else 7
             for col, piece_type in enumerate(STARTING_PIECES):
-                self.board[row, col] = Piece(color, piece_type)
+                position = row * 8 + col
+                self.board[row, col] = Piece(color, piece_type, position)
+                self.piece_positions[position] = self.board[row, col]
+
+    def get_piece(self, position):
+        """Get the piece at a position."""
+
+        return self.piece_positions.get(position)

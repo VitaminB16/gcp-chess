@@ -8,7 +8,7 @@ STARTING_PIECES = [
     "knight",
     "rook",
 ]
-PIECES_SYMBOLS = {
+PIECE_SYMBOLS = {
     "white_pawn": "♙",
     "white_rook": "♖",
     "white_knight": "♘",

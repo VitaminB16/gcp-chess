@@ -1,8 +1,5 @@
-import numpy as np
-import pandas as pd
-
-from back_end.board import Board, Piece
-from common.config import STARTING_PIECES, PIECES_SYMBOLS
+from back_end.board import Board
+from back_end.moves import Moves
 
 
 class ChessGame:
@@ -12,3 +9,9 @@ class ChessGame:
         """
         self.player_color = kwargs.get("player_color", "white")
         self.board = Board(**kwargs)
+
+    def get_valid_moves(self, position):
+        """
+        Get the valid moves for a position.
+        """
+        piece = self.board.get_piece(position)
