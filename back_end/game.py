@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from back_end.board import Board, Piece
-from config import STARTING_PIECES, PIECES_SYMBOLS
+from common.config import STARTING_PIECES, PIECES_SYMBOLS
 
 
 class ChessGame:

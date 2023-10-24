@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from config import STARTING_PIECES, PIECES_SYMBOLS
+from common.config import STARTING_PIECES, PIECES_SYMBOLS
 
 
 class Piece:
