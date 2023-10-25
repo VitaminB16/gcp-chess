@@ -15,3 +15,6 @@ class ChessGame:
         Get the valid moves for a position.
         """
         piece = self.board.get_piece(position)
+        moves = Moves(piece, self.board)
+        moves.get_valid_moves()
+

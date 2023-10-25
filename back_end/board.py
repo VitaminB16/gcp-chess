@@ -32,8 +32,9 @@ class Board:
         self.initialize_board()
 
     def __repr__(self):
+        board = self.board.reshape((8, 8))
         board_df = pd.DataFrame(
-            self.board, columns=list("ABCDEFGH"), index=list(range(1, 9))
+            board, columns=list("ABCDEFGH"), index=list(range(1, 9))
         )
         board_df = board_df.replace(np.nan, ".")
         if self.player_color == "white":
@@ -59,6 +60,7 @@ class Board:
                 position = row * 8 + col
                 self.board[row, col] = Piece(color, piece_type, position)
                 self.piece_positions[position] = self.board[row, col]
+        self.board = self.board.reshape(-1)  # Convert board to 1D array
 
     def get_piece(self, position):
         """Get the piece at a position."""
