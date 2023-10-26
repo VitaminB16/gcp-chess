@@ -29,20 +29,16 @@ class Board:
         self.player_color = kwargs.get("player_color", "white")
         self.board = np.empty((8, 8), dtype=object)
         self.piece_positions = {}
+        self.all_pieces = {
+            "white": np.zeros(64, dtype=bool),
+            "black": np.zeros(64, dtype=bool),
+        }
         self.initialize_board()
 
     def __repr__(self):
         board = self.board.reshape((8, 8))
-        board_df = pd.DataFrame(
-            board, columns=list("ABCDEFGH"), index=list(range(1, 9))
-        )
-        board_df = board_df.replace(np.nan, ".")
-        if self.player_color == "white":
-            board_df = board_df.loc[::-1]
-        footer = board_df.columns.to_list()
-        footer = pd.DataFrame([footer], columns=board_df.columns, index=[""])
-        board_df = pd.concat([board_df, footer])
-        return board_df.to_string(header=False)
+        board = np.where(board == None, ".", board)
+        return self.print_board_layout(board, "Chess Board")
 
     def initialize_board(self):
         """Set the pieces to their starting positions."""
@@ -54,15 +50,53 @@ class Board:
                 position = row * 8 + col
                 self.board[row, col] = Piece(color, "pawn", position)
                 self.piece_positions[position] = self.board[row, col]
+                self.all_pieces[color][position] = True
 
             row = 0 if color == "white" else 7
             for col, piece_type in enumerate(STARTING_PIECES):
                 position = row * 8 + col
                 self.board[row, col] = Piece(color, piece_type, position)
                 self.piece_positions[position] = self.board[row, col]
+                self.all_pieces[color][position] = True
+        self.board[4, 4] = Piece("white", "queen", 4 * 8 + 4)
+        self.piece_positions[4 * 8 + 4] = self.board[4, 4]
+        self.all_pieces["white"][4 * 8 + 4] = True
         self.board = self.board.reshape(-1)  # Convert board to 1D array
 
     def get_piece(self, position):
         """Get the piece at a position."""
 
         return self.piece_positions.get(position)
+
+    def print_board_layout(self, layout, title=""):
+        """Prints a given board layout with an optional title."""
+        if layout.size == 64:  # If the layout is a 1D array
+            layout = layout.reshape((8, 8))
+
+        layout_df = pd.DataFrame(
+            layout, columns=list("ABCDEFGH"), index=list(range(1, 9))
+        )
+        if self.player_color == "white":
+            layout_df = layout_df.loc[::-1]
+
+        layout_str = f"{title}\n{layout_df.to_string(header=True, index=True)}"
+        return layout_str
+
+    def print_boolean(self, layout):
+        """Prints the boolean board."""
+        pieces_layout = np.where(layout.reshape((8, 8)), "X", ".")
+        return self.print_board_layout(pieces_layout, "Boolean Board")
+
+    def print_pieces(self, color):
+        """Prints the pieces for the given color."""
+        assert color in ["white", "black"], "Color must be 'white' or 'black'"
+        pieces_layout = np.where(self.all_pieces[color].reshape((8, 8)), "X", ".")
+        return self.print_board_layout(pieces_layout, f"{color.title()} Pieces")
+
+    def print_white_pieces(self):
+        """Prints the white pieces on the board."""
+        return self.print_pieces("white")
+
+    def print_black_pieces(self):
+        """Prints the black pieces on the board."""
+        return self.print_pieces("black")

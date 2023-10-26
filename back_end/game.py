@@ -17,5 +17,7 @@ class ChessGame:
         Get the valid moves for a position.
         """
         piece = self.board.get_piece(position)
+        print(piece)
         moves = Moves(piece, self.board, self.move_tables)
-        moves.get_valid_moves()
+        valid_moves = moves.get_valid_moves()
+        print(self.board.print_boolean(valid_moves))
