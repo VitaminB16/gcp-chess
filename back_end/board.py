@@ -58,9 +58,9 @@ class Board:
                 self.board[row, col] = Piece(color, piece_type, position)
                 self.piece_positions[position] = self.board[row, col]
                 self.all_pieces[color][position] = True
-        self.board[4, 4] = Piece("white", "queen", 4 * 8 + 4)
-        self.piece_positions[4 * 8 + 4] = self.board[4, 4]
-        self.all_pieces["white"][4 * 8 + 4] = True
+        # self.board[4, 4] = Piece("white", "queen", 4 * 8 + 4)
+        # self.piece_positions[4 * 8 + 4] = self.board[4, 4]
+        # self.all_pieces["white"][4 * 8 + 4] = True
         self.board = self.board.reshape(-1)  # Convert board to 1D array
 
     def get_piece(self, position):
