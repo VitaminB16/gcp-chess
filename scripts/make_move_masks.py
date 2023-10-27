@@ -14,71 +14,25 @@ def print_board(board):
     print(board_array)
 
 
-def get_diagonal_attacks_mask(position):
+def get_line_attacks_mask(position, direction):
     """Computes the mask for the attacked squares on the diagonals."""
     if position > 64 or position < 0:
         return None
-    # Create an empty mask with all False values.
-    attack_mask = np.zeros(64, dtype=bool)
-
-    # Determine the row and column of the position.
-    row, col = divmod(position, 8)
-
-    # For the positive diagonal:
-
-    # Determine steps we can take top-left and bottom-right
-    top_left_steps = min(row, col)
-    bottom_right_steps = min(8 - row - 1, 8 - col - 1)
-
-    # Calculate indices using np.arange()
-    indices_positive_diag = np.concatenate(
-        [
-            position - np.arange(1, top_left_steps + 1) * 9,
-            position + np.arange(1, bottom_right_steps + 1) * 9,
-        ]
-    )
-
-    attack_mask[indices_positive_diag] = True
-
-    # For the negative diagonal:
-
-    # Determine steps we can take top-right and bottom-left
-    top_right_steps = min(row, 8 - col - 1)
-    bottom_left_steps = min(8 - row - 1, col)
-
-    # Calculate indices using np.arange()
-    indices_negative_diag = np.concatenate(
-        [
-            position - np.arange(1, top_right_steps + 1) * 7,
-            position + np.arange(1, bottom_left_steps + 1) * 7,
-        ]
-    )
-
-    attack_mask[indices_negative_diag] = True
-
-    return attack_mask
-
-
-def get_line_attacks_mask(position):
-    """Computes the mask for the attacked squares on the vertical/horizontal."""
-    if position > 64 or position < 0:
+    if not all(x in [1, -1, 0] for x in direction) or direction == [0, 0]:
         return None
     # Create an empty mask with all False values.
-    attack_mask = np.zeros(64, dtype=bool)
+    attack_mask = np.zeros((8, 8), dtype=bool)
 
     # Determine the row and column of the position.
     row, col = divmod(position, 8)
 
-    for i in range(8):
-        position_i = row * 8 + i
-        if position == position_i:
-            continue
-        attack_mask[position_i] = True
-    for i in range(8):
-        position_i = i * 8 + col
-        if position == position_i:
-            continue
-        attack_mask[position_i] = True
+    while row >= 0 and row < 8 and col >= 0 and col < 8:
+        attack_mask[row, col] = True
+        row += direction[0]
+        col += direction[1]
+
+    attack_mask = attack_mask.reshape((64,))
+    attack_mask[position] = False
 
     return attack_mask
 
@@ -170,19 +124,25 @@ def get_pawn_move_mask(position, color):
 if __name__ == "__main__":
     import os
 
-    BISHOP_MOVES = np.zeros((64, 64), dtype=bool)
-    ROOK_MOVES = np.zeros((64, 64), dtype=bool)
-    QUEEN_MOVES = np.zeros((64, 64), dtype=bool)
+    BISHOP_MOVES = np.zeros((64, 64, 4), dtype=bool)
+    ROOK_MOVES = np.zeros((64, 64, 4), dtype=bool)
+    QUEEN_MOVES = np.zeros((64, 64, 8), dtype=bool)
     KNIGHT_MOVES = np.zeros((64, 64), dtype=bool)
     KING_MOVES = np.zeros((64, 64), dtype=bool)
     WHITE_PAWN_MOVES = np.zeros((64, 64), dtype=bool)
     WHITE_PAWN_ATTACKS = np.zeros((64, 64), dtype=bool)
     BLACK_PAWN_MOVES = np.zeros((64, 64), dtype=bool)
     BLACK_PAWN_ATTACKS = np.zeros((64, 64), dtype=bool)
+    rook_directions = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+    bishop_directions = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
+    queen_directions = [[0, 1], [1, 0], [1, 1], [1, -1], [0, -1], [-1, 0], [-1, -1], [-1, 1]]
     for i in range(64):
-        ROOK_MOVES[i] = get_line_attacks_mask(i)
-        BISHOP_MOVES[i] = get_diagonal_attacks_mask(i)
-        QUEEN_MOVES[i] = ROOK_MOVES[i] | BISHOP_MOVES[i]
+        for k, direction in enumerate(rook_directions):
+            ROOK_MOVES[i, :, k] = get_line_attacks_mask(i, direction)
+        for k, direction in enumerate(bishop_directions):
+            BISHOP_MOVES[i, :, k] = get_line_attacks_mask(i, direction)
+        for k, direction in enumerate(queen_directions):
+            QUEEN_MOVES[i, :, k] = get_line_attacks_mask(i, direction)
         KNIGHT_MOVES[i] = get_knight_attacks_mask(i)
         KING_MOVES[i] = get_king_attacks_mask(i)
         WHITE_PAWN_MOVES[i] = get_pawn_move_mask(i, color="white")
