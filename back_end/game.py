@@ -20,4 +20,3 @@ class ChessGame:
         # print(piece)
         moves = Moves(piece, self.board, self.move_tables)
         valid_moves = moves.get_valid_moves()
-        # print(self.board.print_boolean(valid_moves))

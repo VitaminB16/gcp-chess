@@ -26,13 +26,21 @@ def get_line_attacks_mask(position, direction):
     # Determine the row and column of the position.
     row, col = divmod(position, 8)
 
+    # Positive direction
     while row >= 0 and row < 8 and col >= 0 and col < 8:
         attack_mask[row, col] = True
         row += direction[0]
         col += direction[1]
+    
+    # Negative direction
+    row, col = divmod(position, 8)
+    while row >= 0 and row < 8 and col >= 0 and col < 8:
+        attack_mask[row, col] = True
+        row -= direction[0]
+        col -= direction[1]
 
     attack_mask = attack_mask.reshape((64,))
-    attack_mask[position] = False
+    # attack_mask[position] = False
 
     return attack_mask
 
@@ -124,18 +132,18 @@ def get_pawn_move_mask(position, color):
 if __name__ == "__main__":
     import os
 
-    BISHOP_MOVES = np.zeros((64, 64, 4), dtype=bool)
-    ROOK_MOVES = np.zeros((64, 64, 4), dtype=bool)
-    QUEEN_MOVES = np.zeros((64, 64, 8), dtype=bool)
+    BISHOP_MOVES = np.zeros((64, 64, 2), dtype=bool)
+    ROOK_MOVES = np.zeros((64, 64, 2), dtype=bool)
+    QUEEN_MOVES = np.zeros((64, 64, 4), dtype=bool)
     KNIGHT_MOVES = np.zeros((64, 64), dtype=bool)
     KING_MOVES = np.zeros((64, 64), dtype=bool)
     WHITE_PAWN_MOVES = np.zeros((64, 64), dtype=bool)
     WHITE_PAWN_ATTACKS = np.zeros((64, 64), dtype=bool)
     BLACK_PAWN_MOVES = np.zeros((64, 64), dtype=bool)
     BLACK_PAWN_ATTACKS = np.zeros((64, 64), dtype=bool)
-    rook_directions = [[0, 1], [1, 0], [0, -1], [-1, 0]]
-    bishop_directions = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
-    queen_directions = [[0, 1], [1, 0], [1, 1], [1, -1], [0, -1], [-1, 0], [-1, -1], [-1, 1]]
+    rook_directions = [[0, 1], [1, 0]]
+    bishop_directions = [[1, 1], [1, -1]]
+    queen_directions = [[0, 1], [1, 0], [1, 1], [1, -1]]
     for i in range(64):
         for k, direction in enumerate(rook_directions):
             ROOK_MOVES[i, :, k] = get_line_attacks_mask(i, direction)

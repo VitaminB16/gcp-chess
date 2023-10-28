@@ -28,7 +28,7 @@ class Board:
         """
         self.player_color = kwargs.get("player_color", "white")
         self.board = np.empty((8, 8), dtype=object)
-        self.piece_positions = {}
+        self.piece_positions = np.empty(64, dtype=Piece)
         self.all_pieces = {
             "white": np.zeros(64, dtype=bool),
             "black": np.zeros(64, dtype=bool),
@@ -58,17 +58,17 @@ class Board:
                 self.board[row, col] = Piece(color, piece_type, position)
                 self.piece_positions[position] = self.board[row, col]
                 self.all_pieces[color][position] = True
-        # self.board[4, 4] = Piece("white", "queen", 4 * 8 + 4)
-        # self.piece_positions[4 * 8 + 4] = self.board[4, 4]
-        # self.all_pieces["white"][4 * 8 + 4] = True
+        self.board[4, 4] = Piece("white", "queen", 4 * 8 + 4)
+        self.piece_positions[4 * 8 + 4] = self.board[4, 4]
+        self.all_pieces["white"][4 * 8 + 4] = True
         self.board = self.board.reshape(-1)  # Convert board to 1D array
 
     def get_piece(self, position):
         """Get the piece at a position."""
 
-        return self.piece_positions.get(position)
+        return self.piece_positions[position]
 
-    def print_board_layout(self, layout, title=""):
+    def print_board_layout(self, layout, title="", header=True, *kwargs):
         """Prints a given board layout with an optional title."""
         if layout.size == 64:  # If the layout is a 1D array
             layout = layout.reshape((8, 8))
@@ -78,16 +78,20 @@ class Board:
         )
         if self.player_color == "white":
             layout_df = layout_df.loc[::-1]
+            layout_df = layout_df._append(pd.Series(name=""))
+            layout_df.iloc[len(layout_df) - 1] = layout_df.columns
+            header = False
 
-        layout_str = f"{title}\n{layout_df.to_string(header=True, index=True)}"
+        layout_str = f"{title}\n{layout_df.to_string(header=header, index=True)}"
+        print(layout_str)
         return layout_str
 
-    def print_boolean(self, layout):
+    def print_boolean(self, layout, *kwargs):
         """Prints the boolean board."""
         pieces_layout = np.where(layout.reshape((8, 8)), "X", ".")
         return self.print_board_layout(pieces_layout, "Boolean Board")
 
-    def print_pieces(self, color):
+    def print_pieces(self, color, *kwargs):
         """Prints the pieces for the given color."""
         assert color in ["white", "black"], "Color must be 'white' or 'black'"
         pieces_layout = np.where(self.all_pieces[color].reshape((8, 8)), "X", ".")
