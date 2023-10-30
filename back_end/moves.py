@@ -1,5 +1,11 @@
 import numpy as np
 
+from back_end.utils import (
+    binary_array_to_int,
+    int_to_binary_array,
+    reverse_binary_array_int,
+)
+
 
 class MovesMeta(type):
     def __call__(cls, piece, board, move_data):
@@ -31,13 +37,14 @@ class Moves(metaclass=MovesMeta):
         self.position = piece.position
         self.opposite_color_pieces = board.all_pieces[self.opposite_color]
         self.occupied = self.board.all_pieces["white"] | self.board.all_pieces["black"]
+        self.occupied[self.position] = False
+        self.attacked_by_piece = np.zeros(64, dtype=bool)
+        self.position_array = np.zeros(64, dtype=bool)
+        self.position_array[self.position] = True
+        self.valid_moves = np.zeros(64, dtype=bool)
 
     def get_valid_moves(self):
         raise NotImplementedError("Should be implemented in subclasses")
-
-    
-    def arr_to_int(self, ray):
-        return int("".join(ray.astype(int).astype(str)), 2)
 
 
 class Default(Moves):
@@ -49,16 +56,35 @@ class Queen(Moves):
     def get_valid_moves(self):
         """Logic for queen movement."""
 
-        
+        moves = self.move_data["queen"][:, self.position]
+        directions = moves
+        for direction in directions:
+            o = self.occupied[direction]
+            if not any(o):
+                continue
 
-        moves = self.move_data["queen"][self.position]
-        positive_directions = moves[:, [0, 1, 2, 3]]
-        negative_directions = moves[:, [-1, -2, -3, -4]]
+            s = self.position_array[direction]
+            o = self.occupied[direction]
 
-        o = self.occupied[positive_directions[:,2]]
-        self.board.print_boolean(positive_directions[:,2])
+            o_reverse = o[::-1]
+            s_reverse = s[::-1]
+            o_int = binary_array_to_int(o)
+            s_int = binary_array_to_int(s)
+            o_reverse_int = binary_array_to_int(o_reverse)
+            s_reverse_int = binary_array_to_int(s_reverse)
+            o_2s = o_int - 2 * s_int
+            o_2s_reverse = reverse_binary_array_int(
+                o_reverse_int - 2 * s_reverse_int, len(o)
+            )
+            line_attacks = o_2s ^ o_2s_reverse
+            line_attacks = int_to_binary_array(line_attacks, len(o))
 
-        return None
+            self.valid_moves[direction] = line_attacks
+
+        self.valid_moves = self.valid_moves & ~self.board.all_pieces[self.color]
+        self.attacked_by_piece = self.valid_moves & self.opposite_color_pieces
+
+        return self.valid_moves, self.attacked_by_piece
 
 
 class Pawn(Moves):

@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def square_to_position(square: str):
     """
     Convert a square to a position.
@@ -33,14 +36,34 @@ def load_chess_move_tables():
             "white": np.load("back_end/lookup_tables/WHITE_PAWN_MOVES.npy"),
             "black": np.load("back_end/lookup_tables/BLACK_PAWN_MOVES.npy"),
             "white_attack": np.load("back_end/lookup_tables/WHITE_PAWN_ATTACKS.npy"),
-            "black_attack": np.load("back_end/lookup_tables/BLACK_PAWN_ATTACKS.npy")
+            "black_attack": np.load("back_end/lookup_tables/BLACK_PAWN_ATTACKS.npy"),
         },
         "rook": np.load("back_end/lookup_tables/ROOK_MOVES.npy"),
         "bishop": np.load("back_end/lookup_tables/BISHOP_MOVES.npy"),
         "knight": np.load("back_end/lookup_tables/KNIGHT_MOVES.npy"),
         "queen": np.load("back_end/lookup_tables/QUEEN_MOVES.npy"),
-        "king": np.load("back_end/lookup_tables/KING_MOVES.npy")
+        "king": np.load("back_end/lookup_tables/KING_MOVES.npy"),
     }
+
+
+def binary_array_to_int(arr):
+    """Convert a binary array to an integer, e.g. [1, 0, 1] -> 5."""
+    return int("".join(str(int(b)) for b in arr), 2)
+
+
+def int_to_binary_array(num, length):
+    """Convert an integer to a binary array, e.g. 5 -> [1, 0, 1]."""
+    return np.array([bool(int(x)) for x in f"{num:0{length}b}"])
+
+
+def reverse_binary_array(arr):
+    """Reverse a binary array, e.g. [1, 1, 0] -> [0, 1, 1]"""
+    return arr[::-1]
+
+
+def reverse_binary_array_int(num, length):
+    """Reverse an integer's binary representation, e.g. 6 -> [1, 1, 0] -> [0, 1, 1] -> 3"""
+    return binary_array_to_int(reverse_binary_array(int_to_binary_array(num, length)))
 
 
 if __name__ == "__main__":

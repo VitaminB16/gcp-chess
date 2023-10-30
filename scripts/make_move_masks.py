@@ -132,9 +132,9 @@ def get_pawn_move_mask(position, color):
 if __name__ == "__main__":
     import os
 
-    BISHOP_MOVES = np.zeros((64, 64, 2), dtype=bool)
-    ROOK_MOVES = np.zeros((64, 64, 2), dtype=bool)
-    QUEEN_MOVES = np.zeros((64, 64, 4), dtype=bool)
+    BISHOP_MOVES = np.zeros((2, 64, 64), dtype=bool)
+    ROOK_MOVES = np.zeros((2, 64, 64), dtype=bool)
+    QUEEN_MOVES = np.zeros((4, 64, 64), dtype=bool)
     KNIGHT_MOVES = np.zeros((64, 64), dtype=bool)
     KING_MOVES = np.zeros((64, 64), dtype=bool)
     WHITE_PAWN_MOVES = np.zeros((64, 64), dtype=bool)
@@ -146,11 +146,11 @@ if __name__ == "__main__":
     queen_directions = [[0, 1], [1, 0], [1, 1], [1, -1]]
     for i in range(64):
         for k, direction in enumerate(rook_directions):
-            ROOK_MOVES[i, :, k] = get_line_attacks_mask(i, direction)
+            ROOK_MOVES[k, i, :] = get_line_attacks_mask(i, direction)
         for k, direction in enumerate(bishop_directions):
-            BISHOP_MOVES[i, :, k] = get_line_attacks_mask(i, direction)
+            BISHOP_MOVES[k, i, :] = get_line_attacks_mask(i, direction)
         for k, direction in enumerate(queen_directions):
-            QUEEN_MOVES[i, :, k] = get_line_attacks_mask(i, direction)
+            QUEEN_MOVES[k, i, :] = get_line_attacks_mask(i, direction)
         KNIGHT_MOVES[i] = get_knight_attacks_mask(i)
         KING_MOVES[i] = get_king_attacks_mask(i)
         WHITE_PAWN_MOVES[i] = get_pawn_move_mask(i, color="white")
