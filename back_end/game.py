@@ -19,4 +19,4 @@ class ChessGame:
         piece = self.board.get_piece(position)
         # print(piece)
         moves = Moves(piece, self.board, self.move_tables)
-        valid_moves = moves.get_valid_moves()
+        valid_moves, attacked_pieces = moves.get_valid_moves()

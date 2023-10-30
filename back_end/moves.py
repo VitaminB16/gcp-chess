@@ -4,6 +4,7 @@ from back_end.utils import (
     binary_array_to_int,
     int_to_binary_array,
     reverse_binary_array_int,
+    compute_line_attacks,
 )
 
 
@@ -66,18 +67,7 @@ class Queen(Moves):
             s = self.position_array[direction]
             o = self.occupied[direction]
 
-            o_reverse = o[::-1]
-            s_reverse = s[::-1]
-            o_int = binary_array_to_int(o)
-            s_int = binary_array_to_int(s)
-            o_reverse_int = binary_array_to_int(o_reverse)
-            s_reverse_int = binary_array_to_int(s_reverse)
-            o_2s = o_int - 2 * s_int
-            o_2s_reverse = reverse_binary_array_int(
-                o_reverse_int - 2 * s_reverse_int, len(o)
-            )
-            line_attacks = o_2s ^ o_2s_reverse
-            line_attacks = int_to_binary_array(line_attacks, len(o))
+            line_attacks = compute_line_attacks(o=o, s=s)
 
             self.valid_moves[direction] = line_attacks
 

@@ -66,6 +66,23 @@ def reverse_binary_array_int(num, length):
     return binary_array_to_int(reverse_binary_array(int_to_binary_array(num, length)))
 
 
+def compute_line_attacks(o, s):
+    """Compute the line attacks for a slider piece s and occupied squares o.
+    E.g. (o=[1,1,1,0,0,1,0,1], s=[0,0,0,0,0,1,0,0]) -> [0,0,1,1,1,0,1,1]
+    """
+    o_reverse = o[::-1]
+    s_reverse = s[::-1]
+    o_int = binary_array_to_int(o)
+    s_int = binary_array_to_int(s)
+    o_reverse_int = binary_array_to_int(o_reverse)
+    s_reverse_int = binary_array_to_int(s_reverse)
+    o_2s = o_int - 2 * s_int
+    o_2s_reverse = reverse_binary_array_int(o_reverse_int - 2 * s_reverse_int, len(o))
+    line_attacks = o_2s ^ o_2s_reverse
+    line_attacks = int_to_binary_array(line_attacks, len(o))
+    return line_attacks
+
+
 if __name__ == "__main__":
     tests = [
         square_to_position("A1") == 0,
