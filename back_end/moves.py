@@ -122,11 +122,6 @@ class Bishop(Moves):
         self.valid_moves = self.valid_moves & ~self.board.all_pieces[self.color]
         self.attacked_by_piece = self.valid_moves & self.opposite_color_pieces
 
-        self.board.print_bool(self.valid_moves)
-        self.board.print_bool(self.attacked_by_piece)
-        print(self.board)
-        exit()
-
         return self.valid_moves, self.attacked_by_piece
 
 
@@ -134,10 +129,23 @@ class Knight(Moves):
     def get_valid_moves(self):
         """Logic for knight movement."""
 
+        self.valid_moves = self.moves & ~self.board.all_pieces[self.color]
+        self.attacked_by_piece = self.valid_moves & self.opposite_color_pieces
+
+        return self.valid_moves, self.attacked_by_piece
+
 
 class King(Moves):
     def get_valid_moves(self):
         """Logic for king movement."""
+
+        self.valid_moves = self.moves & ~self.board.all_pieces[self.color]
+        self.attacked_by_piece = self.valid_moves & self.opposite_color_pieces
+
+        # TODO: Logic for filtering out attacked squares
+        # TODO: Logic for castling
+
+        return self.valid_moves, self.attacked_by_piece
 
 
 class Pawn(Moves):
