@@ -43,6 +43,7 @@ class Moves(metaclass=MovesMeta):
         self.position_array = np.zeros(64, dtype=bool)
         self.position_array[self.position] = True
         self.valid_moves = np.zeros(64, dtype=bool)
+        self.moves = self.move_data[piece.piece_type][:, piece.position]
 
     def get_valid_moves(self):
         raise NotImplementedError("Should be implemented in subclasses")
@@ -57,11 +58,11 @@ class Queen(Moves):
     def get_valid_moves(self):
         """Logic for queen movement."""
 
-        moves = self.move_data["queen"][:, self.position]
-        directions = moves
+        directions = self.moves
         for direction in directions:
             o = self.occupied[direction]
             if not any(o):
+                self.valid_moves[direction] = True
                 continue
 
             s = self.position_array[direction]
@@ -75,6 +76,68 @@ class Queen(Moves):
         self.attacked_by_piece = self.valid_moves & self.opposite_color_pieces
 
         return self.valid_moves, self.attacked_by_piece
+
+
+class Rook(Moves):
+    def get_valid_moves(self):
+        """Logic for rook movement."""
+        directions = self.moves
+        for direction in directions:
+            o = self.occupied[direction]
+            if not any(o):
+                self.valid_moves[direction] = True
+                continue
+
+            s = self.position_array[direction]
+            o = self.occupied[direction]
+
+            line_attacks = compute_line_attacks(o=o, s=s)
+
+            self.valid_moves[direction] = line_attacks
+
+        self.valid_moves = self.valid_moves & ~self.board.all_pieces[self.color]
+        self.attacked_by_piece = self.valid_moves & self.opposite_color_pieces
+
+        return self.valid_moves, self.attacked_by_piece
+
+
+class Bishop(Moves):
+    def get_valid_moves(self):
+        """Logic for bishop movement."""
+        moves = self.move_data["bishop"][:, self.position]
+        directions = moves
+        for direction in directions:
+            o = self.occupied[direction]
+            if not any(o):
+                self.valid_moves[direction] = True
+                continue
+
+            s = self.position_array[direction]
+            o = self.occupied[direction]
+
+            line_attacks = compute_line_attacks(o=o, s=s)
+
+            self.valid_moves[direction] = line_attacks
+
+        self.valid_moves = self.valid_moves & ~self.board.all_pieces[self.color]
+        self.attacked_by_piece = self.valid_moves & self.opposite_color_pieces
+
+        self.board.print_bool(self.valid_moves)
+        self.board.print_bool(self.attacked_by_piece)
+        print(self.board)
+        exit()
+
+        return self.valid_moves, self.attacked_by_piece
+
+
+class Knight(Moves):
+    def get_valid_moves(self):
+        """Logic for knight movement."""
+
+
+class King(Moves):
+    def get_valid_moves(self):
+        """Logic for king movement."""
 
 
 class Pawn(Moves):
@@ -95,23 +158,3 @@ class Pawn(Moves):
         # TODO: Logic for en passant
 
         return valid_moves
-
-
-class Rook(Moves):
-    def get_valid_moves(self):
-        """Logic for rook movement."""
-
-
-class Knight(Moves):
-    def get_valid_moves(self):
-        """Logic for knight movement."""
-
-
-class Bishop(Moves):
-    def get_valid_moves(self):
-        """Logic for bishop movement."""
-
-
-class King(Moves):
-    def get_valid_moves(self):
-        """Logic for king movement."""

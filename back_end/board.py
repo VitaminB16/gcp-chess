@@ -58,7 +58,7 @@ class Board:
                 self.board[row, col] = Piece(color, piece_type, position)
                 self.piece_positions[position] = self.board[row, col]
                 self.all_pieces[color][position] = True
-        self.board[4, 4] = Piece("white", "queen", 4 * 8 + 4)
+        self.board[4, 4] = Piece("white", "bishop", 4 * 8 + 4)
         self.piece_positions[4 * 8 + 4] = self.board[4, 4]
         self.all_pieces["white"][4 * 8 + 4] = True
         self.board = self.board.reshape(-1)  # Convert board to 1D array
@@ -83,19 +83,20 @@ class Board:
             header = False
 
         layout_str = f"{title}\n{layout_df.to_string(header=header, index=True)}"
-        print(layout_str)
         return layout_str
 
-    def print_boolean(self, layout, *kwargs):
+    def print_bool(self, layout, *kwargs):
         """Prints the boolean board."""
         pieces_layout = np.where(layout.reshape((8, 8)), "X", ".")
-        return self.print_board_layout(pieces_layout, "Boolean Board")
+        layout = self.print_board_layout(pieces_layout, "Boolean Board")
+        return print(layout)
 
     def print_pieces(self, color, *kwargs):
         """Prints the pieces for the given color."""
         assert color in ["white", "black"], "Color must be 'white' or 'black'"
         pieces_layout = np.where(self.all_pieces[color].reshape((8, 8)), "X", ".")
-        return self.print_board_layout(pieces_layout, f"{color.title()} Pieces")
+        layout = self.print_board_layout(pieces_layout, f"{color.title()} Pieces")
+        return print(layout)
 
     def print_white_pieces(self):
         """Prints the white pieces on the board."""
