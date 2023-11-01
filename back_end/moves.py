@@ -15,6 +15,9 @@ class MovesMeta(type):
             piece_type = "default"
         else:
             piece_type = piece.piece_type.lower()
+        piece_type = {"queen": "slider", "rook": "slider", "bishop": "slider"}.get(
+            piece_type, piece_type
+        )
         subclass = Moves.subclasses.get(piece_type)
         if subclass:
             return super(MovesMeta, subclass).__call__(piece, board, move_data)
@@ -43,7 +46,7 @@ class Moves(metaclass=MovesMeta):
         self.position_array = np.zeros(64, dtype=bool)
         self.position_array[self.position] = True
         self.valid_moves = np.zeros(64, dtype=bool)
-        self.moves = self.move_data[piece.piece_type][:, piece.position]
+        self.moves = self.move_data[piece.piece_type]
 
     def get_valid_moves(self):
         raise NotImplementedError("Should be implemented in subclasses")
@@ -54,58 +57,11 @@ class Default(Moves):
         return []
 
 
-class Queen(Moves):
+class Slider(Moves):
     def get_valid_moves(self):
         """Logic for queen movement."""
 
-        directions = self.moves
-        for direction in directions:
-            o = self.occupied[direction]
-            if not any(o):
-                self.valid_moves[direction] = True
-                continue
-
-            s = self.position_array[direction]
-            o = self.occupied[direction]
-
-            line_attacks = compute_line_attacks(o=o, s=s)
-
-            self.valid_moves[direction] = line_attacks
-
-        self.valid_moves = self.valid_moves & ~self.board.all_pieces[self.color]
-        self.attacked_by_piece = self.valid_moves & self.opposite_color_pieces
-
-        return self.valid_moves, self.attacked_by_piece
-
-
-class Rook(Moves):
-    def get_valid_moves(self):
-        """Logic for rook movement."""
-        directions = self.moves
-        for direction in directions:
-            o = self.occupied[direction]
-            if not any(o):
-                self.valid_moves[direction] = True
-                continue
-
-            s = self.position_array[direction]
-            o = self.occupied[direction]
-
-            line_attacks = compute_line_attacks(o=o, s=s)
-
-            self.valid_moves[direction] = line_attacks
-
-        self.valid_moves = self.valid_moves & ~self.board.all_pieces[self.color]
-        self.attacked_by_piece = self.valid_moves & self.opposite_color_pieces
-
-        return self.valid_moves, self.attacked_by_piece
-
-
-class Bishop(Moves):
-    def get_valid_moves(self):
-        """Logic for bishop movement."""
-        moves = self.move_data["bishop"][:, self.position]
-        directions = moves
+        directions = self.moves[:, self.position]
         for direction in directions:
             o = self.occupied[direction]
             if not any(o):
@@ -129,7 +85,8 @@ class Knight(Moves):
     def get_valid_moves(self):
         """Logic for knight movement."""
 
-        self.valid_moves = self.moves & ~self.board.all_pieces[self.color]
+        moves = self.moves[:, self.position]
+        self.valid_moves = moves & ~self.board.all_pieces[self.color]
         self.attacked_by_piece = self.valid_moves & self.opposite_color_pieces
 
         return self.valid_moves, self.attacked_by_piece
@@ -139,7 +96,8 @@ class King(Moves):
     def get_valid_moves(self):
         """Logic for king movement."""
 
-        self.valid_moves = self.moves & ~self.board.all_pieces[self.color]
+        moves = self.moves[:, self.position]
+        self.valid_moves = moves & ~self.board.all_pieces[self.color]
         self.attacked_by_piece = self.valid_moves & self.opposite_color_pieces
 
         # TODO: Logic for filtering out attacked squares
@@ -153,16 +111,20 @@ class Pawn(Moves):
         """Logic for pawn movement."""
         # Select the correct move and attack patterns based on color
         if self.color == "white":
-            moves = self.move_data["pawn"]["white"][self.position]
-            attacks = self.move_data["pawn"]["white_attack"][self.position]
+            moves = self.moves["white"][self.position]
+            attacks = self.moves["white_attack"][self.position]
         elif self.color == "black":
-            moves = self.move_data["pawn"]["black"][self.position]
-            attacks = self.move_data["pawn"]["black_attack"][self.position]
+            moves = self.moves["black"][self.position]
+            attacks = self.moves["black_attack"][self.position]
 
         attacks = attacks & self.opposite_color_pieces
-        moves = moves & ~self.board.all_pieces["all"]
+        moves = (
+            moves & ~self.board.all_pieces["white"] & ~self.board.all_pieces["black"]
+        )
         valid_moves = moves | attacks
+
+        attacked_pieces = self.opposite_color_pieces & valid_moves
 
         # TODO: Logic for en passant
 
-        return valid_moves
+        return valid_moves, attacked_pieces

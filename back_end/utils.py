@@ -63,6 +63,8 @@ def reverse_binary_array(arr):
 
 def reverse_binary_array_int(num, length):
     """Reverse an integer's binary representation, e.g. 6 -> [1, 1, 0] -> [0, 1, 1] -> 3"""
+    if num < 0:
+        num = 0
     return binary_array_to_int(reverse_binary_array(int_to_binary_array(num, length)))
 
 

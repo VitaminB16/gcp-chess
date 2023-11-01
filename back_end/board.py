@@ -33,6 +33,10 @@ class Board:
             "white": np.zeros(64, dtype=bool),
             "black": np.zeros(64, dtype=bool),
         }
+        self.pawns = {
+            "white": np.array([], dtype=int),
+            "black": np.array([], dtype=int),
+        }
         self.initialize_board()
 
     def __repr__(self):
@@ -51,6 +55,7 @@ class Board:
                 self.board[row, col] = Piece(color, "pawn", position)
                 self.piece_positions[position] = self.board[row, col]
                 self.all_pieces[color][position] = True
+                self.pawns[color] = np.append(self.pawns[color], position)
 
             row = 0 if color == "white" else 7
             for col, piece_type in enumerate(STARTING_PIECES):
@@ -58,9 +63,10 @@ class Board:
                 self.board[row, col] = Piece(color, piece_type, position)
                 self.piece_positions[position] = self.board[row, col]
                 self.all_pieces[color][position] = True
-        self.board[2, 4] = Piece("white", "king", 2 * 8 + 4)
-        self.piece_positions[2 * 8 + 4] = self.board[2, 4]
-        self.all_pieces["white"][2 * 8 + 4] = True
+        r, c = 2, 4
+        self.board[r, c] = Piece("white", "queen", r * 8 + c)
+        self.piece_positions[r * 8 + c] = self.board[r, c]
+        self.all_pieces["white"][r * 8 + c] = True
         self.board = self.board.reshape(-1)  # Convert board to 1D array
 
     def get_piece(self, position):
