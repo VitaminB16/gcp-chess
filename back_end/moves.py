@@ -42,7 +42,6 @@ class Moves(metaclass=MovesMeta):
         self.opposite_color_pieces = board.all_pieces[self.opposite_color]
         self.occupied = self.board.all_pieces["white"] | self.board.all_pieces["black"]
         self.occupied[self.position] = False
-        self.attacked_by_piece = np.zeros(64, dtype=bool)
         self.position_array = np.zeros(64, dtype=bool)
         self.position_array[self.position] = True
         self.valid_moves = np.zeros(64, dtype=bool)
@@ -76,9 +75,11 @@ class Slider(Moves):
             self.valid_moves[direction] = line_attacks
 
         self.valid_moves = self.valid_moves & ~self.board.all_pieces[self.color]
-        self.attacked_by_piece = self.valid_moves & self.opposite_color_pieces
 
-        return self.valid_moves, self.attacked_by_piece
+        self.board.print_bool(self.valid_moves)
+        print(self.board)
+
+        return self.valid_moves
 
 
 class Knight(Moves):
@@ -87,9 +88,8 @@ class Knight(Moves):
 
         moves = self.moves[:, self.position]
         self.valid_moves = moves & ~self.board.all_pieces[self.color]
-        self.attacked_by_piece = self.valid_moves & self.opposite_color_pieces
 
-        return self.valid_moves, self.attacked_by_piece
+        return self.valid_moves
 
 
 class King(Moves):
@@ -98,12 +98,11 @@ class King(Moves):
 
         moves = self.moves[:, self.position]
         self.valid_moves = moves & ~self.board.all_pieces[self.color]
-        self.attacked_by_piece = self.valid_moves & self.opposite_color_pieces
 
         # TODO: Logic for filtering out attacked squares
         # TODO: Logic for castling
 
-        return self.valid_moves, self.attacked_by_piece
+        return self.valid_moves
 
 
 class Pawn(Moves):
@@ -123,8 +122,6 @@ class Pawn(Moves):
         )
         valid_moves = moves | attacks
 
-        attacked_pieces = self.opposite_color_pieces & valid_moves
-
         # TODO: Logic for en passant
 
-        return valid_moves, attacked_pieces
+        return valid_moves

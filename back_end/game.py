@@ -19,14 +19,15 @@ class ChessGame:
         """
         piece = self.board.get_piece(position)
         moves = Moves(piece, self.board, self.move_tables)
-        valid_moves, attacked_pieces = moves.get_valid_moves()
+        valid_moves = moves.get_valid_moves()
 
-        return valid_moves, attacked_pieces
+        return valid_moves
 
     def get_attacked_squares(self, color):
         """
         Get all squares attacked by a color.
         """
+        opposite_color = "black" if color == "white" else "white"
         piece_types = ["knight", "bishop", "rook", "queen", "king"]
         attacked_squares = np.zeros(64, dtype=bool)
         attacked_squares |= self.get_attacked_pawn_squares(color)
@@ -35,10 +36,12 @@ class ChessGame:
         for position in piece_positions:
             piece = self.board.get_piece(position)
             moves = Moves(piece, self.board, self.move_tables)
-            valid_moves, attacked_pieces = moves.get_valid_moves()
+            valid_moves = moves.get_valid_moves()
             attacked_squares = attacked_squares | valid_moves
 
-        return attacked_squares
+        attacked_pieces = self.board.all_pieces[opposite_color] & attacked_squares
+
+        return attacked_squares, attacked_pieces
 
     def get_attacked_pawn_squares(self, color="black"):
         """
